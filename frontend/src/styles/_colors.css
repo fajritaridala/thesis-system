@@ -1,0 +1,42 @@
+/* color schema */
+@theme {
+  /* primary-color */
+  --color-primary: hsl(239 33% 36%);
+  --color-primary-light: hsl(239 33% 46%);
+  --color-primary-dark: hsl(239 33% 26%);
+
+  /* secondary-color */
+  --color-secondary: hsl(31 90% 58%);
+  --color-secondary-light: hsl(31 90% 68%);
+  --color-secondary-dark: hsl(31 90% 48%);
+
+  /* dark-color */
+  --color-dark: hsl(0 0% 2%);
+  --color-dark-light: hsl(0 0% 12%);
+
+  /* surface-color */
+  --color-surface: hsl(0 0% 90%);
+  --color-surface-light: hsl(0 0% 100%);
+  --color-surface-dark: hsl(0 0% 80%);
+
+  /* gray-color */
+  --color-gray: hsl(0 0% 50%);
+  --color-gray-light: hsl(0 0% 70%);
+  --color-gray-dark: hsl(0 0% 30%);
+}
+
+/* implementation color */
+@theme {
+  /* background */
+  --color-bg-primary: var(--color-primary);
+  --color-bg-secondary: var(--color-secondary);
+  --color-bg-light: var(--color-surface);
+
+  /* text */
+  --color-txt-primary: var(--color-dark);
+  --color-txt-secondary: var(--color-gray-dark);
+  --color-txt-accent: var(--color-primary);
+  --color-txt-accent-secondary: var(--color-secondary);
+  --color-txt-muted: var(--color-gray-light);
+  --color-txt-light: var(--color-surface-light);
+}

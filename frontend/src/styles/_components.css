@@ -1,0 +1,6 @@
+/* button */
+@layer components {
+  .btn-primary {
+    @apply bg-bg-primary text-txt-light;
+  }
+}

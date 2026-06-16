@@ -1,0 +1,2222 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "TOEFL Certificate Verification API",
+    "version": "1.0.0",
+    "description": "API untuk sistem verifikasi sertifikat TOEFL berbasis blockchain. Mengelola autentikasi, layanan tes, penjadwalan, pendaftaran peserta, penilaian, dan verifikasi sertifikat melalui IPFS dan Ethereum smart contract."
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "API Base Path"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "64abc123def456"
+          },
+          "address": {
+            "type": "string",
+            "example": "0x123...abc"
+          },
+          "username": {
+            "type": "string",
+            "example": "john_doe"
+          },
+          "email": {
+            "type": "string",
+            "example": "john@example.com"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "peserta",
+              "admin"
+            ],
+            "example": "peserta"
+          }
+        }
+      },
+      "Service": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "64abc123def456"
+          },
+          "name": {
+            "type": "string",
+            "example": "TOEFL ITP"
+          },
+          "description": {
+            "type": "string",
+            "example": "Test of English as a Foreign Language"
+          },
+          "price": {
+            "type": "number",
+            "example": 500000
+          }
+        }
+      },
+      "Schedule": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "64abc123def456"
+          },
+          "serviceId": {
+            "type": "string",
+            "example": "64def789ghi012"
+          },
+          "scheduleDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-12-20T00:00:00.000Z"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-12-20T09:00:00.000Z"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-12-20T12:00:00.000Z"
+          },
+          "capacity": {
+            "type": "number",
+            "example": 100
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "aktif",
+              "penuh",
+              "tidak aktif"
+            ],
+            "example": "aktif"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": null
+          }
+        }
+      },
+      "Enrollment": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "64abc123def456"
+          },
+          "scheduleId": {
+            "type": "string",
+            "example": "64def789ghi012"
+          },
+          "participantId": {
+            "type": "string",
+            "example": "64ghi345jkl678"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "menunggu",
+              "disetujui",
+              "ditolak",
+              "selesai"
+            ],
+            "example": "menunggu"
+          },
+          "candidate": {
+            "$ref": "#/components/schemas/Candidate"
+          },
+          "payment": {
+            "type": "object",
+            "properties": {
+              "paymentDate": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "paymentProof": {
+                "type": "string"
+              }
+            }
+          },
+          "score": {
+            "$ref": "#/components/schemas/Score"
+          },
+          "hash": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          }
+        }
+      },
+      "Candidate": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date",
+            "example": "2000-01-15"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "laki-laki",
+              "perempuan"
+            ],
+            "example": "laki-laki"
+          },
+          "email": {
+            "type": "string",
+            "example": "john@example.com"
+          },
+          "phoneNumber": {
+            "type": "number",
+            "example": 81234567890
+          },
+          "nim": {
+            "type": "string",
+            "example": "12345678"
+          },
+          "faculty": {
+            "type": "string",
+            "example": "Teknik"
+          },
+          "major": {
+            "type": "string",
+            "example": "Informatika"
+          }
+        }
+      },
+      "Score": {
+        "type": "object",
+        "properties": {
+          "listening": {
+            "type": "number",
+            "example": 45
+          },
+          "reading": {
+            "type": "number",
+            "example": 48
+          },
+          "structure": {
+            "type": "number",
+            "example": 42
+          },
+          "totalScore": {
+            "type": "number",
+            "example": 450
+          }
+        }
+      },
+      "RegisterInput": {
+        "type": "object",
+        "required": [
+          "address",
+          "username",
+          "email"
+        ],
+        "properties": {
+          "address": {
+            "type": "string",
+            "example": "0x123...abc"
+          },
+          "username": {
+            "type": "string",
+            "example": "john_doe"
+          },
+          "email": {
+            "type": "string",
+            "example": "john@example.com"
+          },
+          "roleToken": {
+            "type": "string",
+            "description": "Optional, untuk register sebagai admin"
+          }
+        }
+      },
+      "LoginInput": {
+        "type": "object",
+        "required": [
+          "address"
+        ],
+        "properties": {
+          "address": {
+            "type": "string",
+            "example": "0x123...abc"
+          }
+        }
+      },
+      "CreateServiceInput": {
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "price"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "TOEFL ITP"
+          },
+          "description": {
+            "type": "string",
+            "example": "Test of English as a Foreign Language"
+          },
+          "price": {
+            "type": "number",
+            "example": 500000
+          }
+        }
+      },
+      "UpdateServiceInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          }
+        }
+      },
+      "CreateScheduleInput": {
+        "type": "object",
+        "required": [
+          "scheduleDate",
+          "startTime",
+          "endTime",
+          "capacity"
+        ],
+        "properties": {
+          "scheduleDate": {
+            "type": "string",
+            "example": "2024-12-20"
+          },
+          "startTime": {
+            "type": "string",
+            "example": "09:00"
+          },
+          "endTime": {
+            "type": "string",
+            "example": "12:00"
+          },
+          "capacity": {
+            "type": "number",
+            "example": 100
+          }
+        }
+      },
+      "UpdateScheduleInput": {
+        "type": "object",
+        "properties": {
+          "scheduleDate": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "capacity": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "aktif",
+              "penuh",
+              "tidak aktif"
+            ]
+          }
+        }
+      },
+      "ApprovalInput": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "disetujui",
+              "ditolak"
+            ],
+            "example": "disetujui"
+          }
+        }
+      },
+      "SubmitScoreInput": {
+        "type": "object",
+        "required": [
+          "listening",
+          "reading",
+          "structure"
+        ],
+        "properties": {
+          "listening": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 68,
+            "example": 45
+          },
+          "reading": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 67,
+            "example": 48
+          },
+          "structure": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 68,
+            "example": 42
+          }
+        }
+      },
+      "BlockchainSuccessInput": {
+        "type": "object",
+        "required": [
+          "hash"
+        ],
+        "properties": {
+          "hash": {
+            "type": "string",
+            "example": "0xabc...def"
+          }
+        }
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "number",
+                "example": 200
+              },
+              "message": {
+                "type": "string",
+                "example": "berhasil"
+              }
+            }
+          },
+          "data": {}
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "number",
+                "example": 400
+              },
+              "message": {
+                "type": "string",
+                "example": "pesan error"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "example": null
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/check-health": {
+      "get": {
+        "summary": "Check API and Services Health Status",
+        "description": "Mengecek kesehatan koneksi ke database, Pinata (IPFS), dan Cloudinary.",
+        "tags": [
+          "Health Check"
+        ],
+        "responses": {
+          "200": {
+            "description": "Semua layanan berjalan dengan normal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "UP"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2026-06-15T14:32:42.000Z"
+                    },
+                    "checks": {
+                      "type": "object",
+                      "properties": {
+                        "database": {
+                          "type": "string",
+                          "example": "Connected"
+                        },
+                        "pinata": {
+                          "type": "string",
+                          "example": "Connected"
+                        },
+                        "cloudinary": {
+                          "type": "string",
+                          "example": "Connected"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Satu atau lebih layanan terdegradasi / terputus",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "DEGRADED"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "checks": {
+                      "type": "object",
+                      "properties": {
+                        "database": {
+                          "type": "string",
+                          "example": "Connected"
+                        },
+                        "pinata": {
+                          "type": "string",
+                          "example": "Disconnected"
+                        },
+                        "cloudinary": {
+                          "type": "string",
+                          "example": "Connected"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/verifications": {
+      "get": {
+        "summary": "Verify a TOEFL certificate",
+        "description": "Memverifikasi keaslian sertifikat TOEFL berdasarkan CID dari IPFS.",
+        "tags": [
+          "Verification"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "IPFS CID dari sertifikat",
+            "example": "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sertifikat berhasil diverifikasi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "number",
+                          "example": 200
+                        },
+                        "message": {
+                          "type": "string",
+                          "example": "sertifikat berhasil diverifikasi"
+                        }
+                      }
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "fullName": {
+                          "type": "string"
+                        },
+                        "nim": {
+                          "type": "string"
+                        },
+                        "serviceName": {
+                          "type": "string"
+                        },
+                        "listening": {
+                          "type": "number"
+                        },
+                        "reading": {
+                          "type": "number"
+                        },
+                        "structure": {
+                          "type": "number"
+                        },
+                        "totalScore": {
+                          "type": "number"
+                        },
+                        "scheduleDate": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "CID tidak diberikan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/activity": {
+      "get": {
+        "summary": "Get participant activity history",
+        "description": "Mengambil riwayat aktivitas pendaftaran tes dari peserta yang sedang login.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data aktivitas berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "number",
+                          "example": 200
+                        },
+                        "message": {
+                          "type": "string",
+                          "example": "data berhasil diambil"
+                        }
+                      }
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "enrollId": {
+                            "type": "string"
+                          },
+                          "participantId": {
+                            "type": "string"
+                          },
+                          "serviceName": {
+                            "type": "string"
+                          },
+                          "scheduleDate": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "menunggu",
+                              "disetujui",
+                              "ditolak",
+                              "selesai"
+                            ]
+                          },
+                          "hash": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services": {
+      "get": {
+        "summary": "List all services",
+        "tags": [
+          "Service"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "number",
+              "default": 1
+            },
+            "description": "Page number for pagination"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "number",
+              "default": 10
+            },
+            "description": "Number of items per page"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional search keyword"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved list of services",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Service"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new service",
+        "tags": [
+          "Service"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateServiceInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Service created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Service"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — admin role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/{serviceId}": {
+      "patch": {
+        "summary": "Update an existing service",
+        "tags": [
+          "Service"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "serviceId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the service to update"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateServiceInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Service updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Service"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — admin role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a service",
+        "tags": [
+          "Service"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "serviceId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the service to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Service deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Service"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedules/admin": {
+      "get": {
+        "summary": "List all schedules (admin)",
+        "description": "Retrieve a paginated list of all schedules, including soft-deleted ones if requested. Requires admin role.",
+        "tags": [
+          "Schedule"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page number for pagination"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Number of items per page"
+          },
+          {
+            "in": "query",
+            "name": "serviceId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by service ID"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by schedule status"
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by month"
+          },
+          {
+            "in": "query",
+            "name": "includeDeleted",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Whether to include soft-deleted schedules"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of schedules",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — admin role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedules": {
+      "post": {
+        "summary": "Create a new schedule",
+        "description": "Create a new schedule for a given service. Requires admin role.",
+        "tags": [
+          "Schedule"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "serviceId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The service ID to associate the schedule with"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateScheduleInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Schedule created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Schedule"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — admin role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List schedules (public)",
+        "description": "Retrieve a paginated list of active schedules within the next 7 days. No authentication required.",
+        "tags": [
+          "Schedule"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page number for pagination"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Number of items per page"
+          },
+          {
+            "in": "query",
+            "name": "serviceId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by service ID"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by schedule status"
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by month"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of active schedules",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedules/{scheduleId}/update": {
+      "patch": {
+        "summary": "Update a schedule",
+        "description": "Update an existing schedule by its ID. Requires admin role.",
+        "tags": [
+          "Schedule"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scheduleId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the schedule to update"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateScheduleInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Schedule updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Schedule"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — admin role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedules/{scheduleId}/delete": {
+      "patch": {
+        "summary": "Soft delete a schedule",
+        "description": "Soft delete a schedule by its ID. The schedule is marked as deleted but not permanently removed. Requires admin role.",
+        "tags": [
+          "Schedule"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scheduleId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the schedule to soft delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Schedule soft deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Schedule"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — admin role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enrollments": {
+      "get": {
+        "summary": "List all enrollments",
+        "description": "Retrieve a paginated list of all enrollments. Accessible by admin only.",
+        "tags": [
+          "Enrollment"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number for pagination"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10
+            },
+            "description": "Number of items per page"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "menunggu",
+                "disetujui",
+                "ditolak",
+                "selesai"
+              ]
+            },
+            "description": "Filter enrollments by status"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search keyword to filter enrollments"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of enrollments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — admin role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enrollments/{scheduleId}": {
+      "get": {
+        "summary": "Get participants for a schedule",
+        "description": "Retrieve a paginated list of participants enrolled in a specific schedule. Accessible by admin only.",
+        "tags": [
+          "Enrollment"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scheduleId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the schedule"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number for pagination"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10
+            },
+            "description": "Number of items per page"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search keyword to filter participants"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of schedule participants",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — admin role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Schedule not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Register for a test",
+        "description": "Register the authenticated peserta (participant) for a specific test schedule. Requires a payment proof image upload.",
+        "tags": [
+          "Enrollment"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scheduleId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the schedule to register for"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "paymentDate",
+                  "fullName",
+                  "birthDate",
+                  "gender",
+                  "email",
+                  "phoneNumber",
+                  "nim",
+                  "faculty",
+                  "major"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Payment proof image"
+                  },
+                  "paymentDate": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Date of payment"
+                  },
+                  "fullName": {
+                    "type": "string",
+                    "description": "Full name of the participant"
+                  },
+                  "birthDate": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Date of birth of the participant"
+                  },
+                  "gender": {
+                    "type": "string",
+                    "description": "Gender of the participant"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Email address of the participant"
+                  },
+                  "phoneNumber": {
+                    "type": "string",
+                    "description": "Phone number of the participant"
+                  },
+                  "nim": {
+                    "type": "string",
+                    "description": "Student identification number (NIM)"
+                  },
+                  "faculty": {
+                    "type": "string",
+                    "description": "Faculty of the participant"
+                  },
+                  "major": {
+                    "type": "string",
+                    "description": "Major/program of study"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully registered for the test",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Enrollment"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — peserta role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Schedule not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enrollments/{enrollId}/approval": {
+      "patch": {
+        "summary": "Approve or reject an enrollment",
+        "description": "Approve or reject a pending enrollment request. Accessible by admin only.",
+        "tags": [
+          "Enrollment"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the enrollment"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Enrollment approval status updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — admin role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Enrollment not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enrollments/{enrollId}/{participantId}/submit-score": {
+      "patch": {
+        "summary": "Submit test score for a participant",
+        "description": "Submit the test score for a specific participant in an enrollment. Accessible by admin only.",
+        "tags": [
+          "Enrollment"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the enrollment"
+          },
+          {
+            "in": "path",
+            "name": "participantId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the participant"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitScoreInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Score submitted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "cid": {
+                              "type": "string",
+                              "description": "Content identifier for IPFS/storage"
+                            },
+                            "hash": {
+                              "type": "string",
+                              "description": "Hash of the stored data"
+                            },
+                            "participantId": {
+                              "type": "string",
+                              "description": "The ID of the participant"
+                            },
+                            "enrollId": {
+                              "type": "string",
+                              "description": "The ID of the enrollment"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — admin role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Enrollment or participant not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enrollments/{enrollId}/{participantId}/blockchain-success": {
+      "patch": {
+        "summary": "Confirm blockchain storage success",
+        "description": "Confirm that the test score has been successfully stored on the blockchain. Accessible by admin only.",
+        "tags": [
+          "Enrollment"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the enrollment"
+          },
+          {
+            "in": "path",
+            "name": "participantId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the participant"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlockchainSuccessInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Blockchain storage confirmed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/Enrollment"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — admin role required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Enrollment or participant not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "summary": "Register a new user",
+        "description": "Register a new user account with wallet address and profile details.",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request / Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Login with wallet address",
+        "description": "Authenticate a user by wallet address. Returns a JWT token if the user is already registered, or a response indicating registration is needed.\n",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful or registration required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/SuccessResponse"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "data": {
+                              "type": "string",
+                              "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/SuccessResponse"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "data": {
+                              "type": "string",
+                              "description": "Wallet address",
+                              "example": "0x1234567890abcdef..."
+                            },
+                            "needsRegistration": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request / Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/profile": {
+      "get": {
+        "summary": "Get current user profile",
+        "description": "Retrieve the profile of the currently authenticated user.",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": []
+}

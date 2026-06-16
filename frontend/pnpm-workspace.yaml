@@ -1,0 +1,9 @@
+allowBuilds:
+  '@heroui/shared-utils': true
+  '@tailwindcss/oxide': true
+  bufferutil: true
+  core-js: true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+  utf-8-validate: true

@@ -1,0 +1,68 @@
+/* animate-schema */
+@theme {
+  /* fade-animations */
+  --animate-ftop: fftop 0.6s ease-in;
+  --animate-fbottom: ffbottom 0.6s ease-in;
+  --animate-fleft: ffleft 0.6s ease-in;
+  --animate-fright: ffright 0.6s ease-in;
+
+  /* float-animation */
+  --animate-float: float 8s infinite ease-in-out;
+}
+
+/* keyframes */
+@layer base {
+  @keyframes fftop {
+    from {
+      @apply -translate-y-8 opacity-0;
+    }
+    to {
+      @apply translate-y-0 opacity-100;
+    }
+  }
+
+  @keyframes ffbottom {
+    from {
+      @apply translate-y-8 opacity-0;
+    }
+    to {
+      @apply translate-y-0 opacity-100;
+    }
+  }
+
+  @keyframes ffleft {
+    from {
+      @apply -translate-x-8 opacity-0;
+    }
+    to {
+      @apply translate-x-0 opacity-100;
+    }
+  }
+
+  @keyframes ffright {
+    from {
+      @apply translate-x-8 opacity-0;
+    }
+    to {
+      @apply translate-x-0 opacity-100;
+    }
+  }
+
+  @keyframes float {
+    0% {
+      @apply translate-x-0 translate-y-0;
+    }
+    25% {
+      @apply translate-x-16 -translate-y-12;
+    }
+    50% {
+      @apply translate-x-0 translate-y-0;
+    }
+    75% {
+      @apply -translate-x-16 -translate-y-12;
+    }
+    100% {
+      @apply translate-x-0 translate-y-0;
+    }
+  }
+}

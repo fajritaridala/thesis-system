@@ -1,0 +1,155 @@
+@import 'tailwindcss';
+@plugin './hero.ts';
+@source '../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
+
+@import './_colors.css';
+@import './_components.css';
+
+@custom-variant dark (&:is(.dark *));
+@theme {
+  /* Clean Bento UI Color Palette (Light Mode) */
+  /* Background Halaman: Slate-50/100ish - Bersih, modern, tidak menyilaukan */
+  --color-bg-dark: hsl(210 40% 96.1%);
+
+  /* Background Card/Surface: Putih Murni */
+  --color-bg: hsl(0 0% 100%);
+
+  /* Background Highlight/Hover: Slate-50 */
+  --color-bg-light: hsl(210 40% 98%);
+
+  /* Typography */
+  --color-text: hsl(222.2 47.4% 11.2%); /* Slate-900 */
+  --color-text-muted: hsl(215.4 16.3% 46.9%); /* Slate-500 */
+
+  /* Borders */
+  --color-border: hsl(214.3 31.8% 91.4%); /* Slate-200 */
+  --color-border-muted: hsl(214.3 31.8% 91.4%);
+
+  /* Primary Accent: Tetap menggunakan nuansa sebelumnya, sedikit di-tune */
+  --color-primary: hsl(239 33% 36%);
+  --color-secondary: hsl(30.94 89.72% 58.04%);
+
+  /* Status Colors */
+  --color-danger: hsl(0 84.2% 60.2%);
+  --color-warning: hsl(38 92% 50%);
+  --color-success: hsl(142.1 76.2% 36.3%);
+  --color-info: hsl(221.2 83.2% 53.3%);
+  --color-custom: hsl(239 33% 96%); /* Very light version of primary */
+
+  /* custom space */
+  --spacing-sidebar-panel: 15rem;
+  --spacing-sidebar-space: 1rem;
+
+  /* custom text size */
+  --text-2xsmall: 0.625rem;
+  --text-xsmall: 0.75rem;
+  --text-small: 0.875rem;
+  --text-base: 1rem;
+  --text-large: 1.125rem;
+  --text-xlarge: 1.25rem;
+  --text-2xlarge: 1.5rem;
+  --text-3xlarge: 1.75rem;
+
+  /* custom shadow */
+  /* Bento Shadow: Soft, subtle, elevating */
+  --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-box:
+    0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-main:
+    0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-neo: 8px 8px 16px hsl(210 40% 90%), -8px -8px 16px hsl(210 40% 100%);
+  --shadow-neo-inset:
+    inset 4px 4px 8px hsl(210 40% 90%), inset -4px -4px 8px hsl(210 40% 100%);
+
+  /* custom animate */
+  --animate-fade-top: fade-from-top 0.6s ease-in;
+  --animate-fade-bottom: fade-from-bottom 0.6s ease-in;
+  --animate-fade-left: fade-from-left 0.6s ease-in;
+  --animate-fade-right: fade-from-right 0.6s ease-in;
+  --animate-float: float 8s infinite ease-in-out;
+
+  @keyframes fade-from-top {
+    from {
+      opacity: 0;
+      transform: translateY(-32px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-from-bottom {
+    from {
+      opacity: 0;
+      transform: translateY(32px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-from-left {
+    from {
+      opacity: 0;
+      transform: translateX(-32px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes fade-from-right {
+    from {
+      opacity: 0;
+      transform: translateX(32px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes float {
+    0% {
+      transform: translate(0, 0);
+    }
+    25% {
+      transform: translate(4rem, -3rem);
+    }
+    50% {
+      transform: translate(0, 2rem);
+    }
+    75% {
+      transform: translate(-3rem, 1.5rem);
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  background-color: var(--color-bg-light);
+  color: var(--color-txt-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input.number-input-hide-stepper::-webkit-inner-spin-button,
+input.number-input-hide-stepper::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input.number-input-hide-stepper {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
