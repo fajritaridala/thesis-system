@@ -18,6 +18,26 @@ A decentralized, tamper-proof system designed to store, manage, and verify TOEFL
 
 The project is structured as a monorepo containing three core packages:
 
+```
+web3-skripsi/
+├── compose.yaml              # Production Docker Compose
+├── compose.dev.yaml           # Development Docker Compose
+├── frontend/
+│   ├── Dockerfile             # Multi-stage build (development + runner)
+│   ├── .dockerignore
+│   ├── .env.development       # Dev environment variables (gitignored)
+│   ├── .env.production        # Prod environment variables (gitignored)
+│   └── src/
+├── backend/
+│   ├── Dockerfile             # Multi-stage build (development + runner)
+│   ├── .dockerignore
+│   ├── .env.development       # Dev environment variables (gitignored)
+│   ├── .env.production        # Prod environment variables (gitignored)
+│   └── src/
+└── smart-contract/
+    └── contracts/
+```
+
 ### 1. [smart-contract]
 Manages the decentralized ledger logic using Solidity.
 * **Core Contract**: `TOEFLRecord.sol` – maps certificate hashes to IPFS CIDs.
@@ -47,6 +67,96 @@ A highly responsive Web3 client interface.
 | **Frontend** | Next.js 15, React 19, TailwindCSS v4, HeroUI, TanStack Query, Framer Motion |
 | **Backend** | Node.js, Express, TypeScript, MongoDB (Mongoose), JWT, Multer |
 | **Cloud/IPFS** | Pinata (IPFS), Cloudinary |
+| **DevOps** | Docker, Docker Compose, pnpm, multi-stage builds |
+
+---
+
+## ⚙️ Prerequisites
+
+Before running this project, ensure you have the following installed:
+
+| Tool | Version | Required For |
+| :--- | :--- | :--- |
+| **Docker** | ≥ 24.x | Containerization |
+| **Docker Compose** | ≥ 2.20 (plugin) | Multi-container orchestration |
+| **Node.js** | 24.x (Alpine) | Runtime (handled by Docker) |
+| **pnpm** | 11.3.0 | Package manager (handled by Docker) |
+| **MetaMask** | Latest | Browser wallet for Web3 interaction |
+
+> **Note**: Node.js and pnpm are automatically installed inside Docker containers. You only need Docker and Docker Compose on your host machine.
+
+---
+
+## 🐳 Getting Started with Docker
+
+This project uses multi-stage Docker builds with separate configurations for development and production.
+
+### Environment Setup
+
+Before running, create the required environment files:
+
+```bash
+# Backend
+cp backend/.env.example backend/.env.development
+cp backend/.env.example backend/.env.production
+# Edit with your actual values (MongoDB Atlas URI, Pinata JWT, etc.)
+
+# Frontend
+cp frontend/.env.example frontend/.env.development
+cp frontend/.env.example frontend/.env.production
+# Edit with your actual values
+```
+
+### Development
+
+```bash
+docker compose -f compose.dev.yaml up --build
+```
+
+This will:
+- Build images using the `development` stage from each Dockerfile
+- Bind-mount source code for **hot reload** (changes reflect instantly)
+- Frontend available at `http://localhost:3000`
+- Backend available at `http://localhost:8080`
+
+To stop:
+
+```bash
+docker compose -f compose.dev.yaml down
+```
+
+### Production
+
+```bash
+docker compose up --build
+```
+
+This will:
+- Build optimized images using the `runner` stage from each Dockerfile
+- Frontend uses Next.js **standalone output** for minimal image size
+- Backend runs compiled TypeScript from `dist/`
+- Frontend available at `http://localhost:3000`
+- Backend available at `http://localhost:8080`
+
+---
+
+## 🏗️ Docker Architecture
+
+Both services use multi-stage Dockerfile builds with pnpm and build cache optimization:
+
+| Stage | Purpose | Used By |
+| :--- | :--- | :--- |
+| `base` | Node.js + pnpm setup, copy lockfiles | All stages |
+| `prod-deps` | Install production dependencies only | `runner` |
+| `build` | Install all deps + compile (Next.js build / tsc) | `runner` |
+| `runner` | Optimized production image | `compose.yaml` |
+| `development` | Dev image with hot reload | `compose.dev.yaml` |
+
+**Key optimizations:**
+- **pnpm store cache mount** (`--mount=type=cache`) for faster rebuilds
+- **Next.js standalone output** in frontend for ~60-80% smaller production image
+- **Explicit Docker network** (`simpeka-network`) for inter-container communication
+- **`env_file`** for clean environment variable injection per environment
 
 ---
 

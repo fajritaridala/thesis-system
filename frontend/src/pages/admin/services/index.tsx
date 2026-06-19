@@ -20,8 +20,8 @@ import { ServiceTable } from '@/components/ui/Table/ServiceTable';
 import usePagination from '@/hooks/usePagination';
 import { servicesService } from '@/services/admin.service';
 import { ServiceItem, ServiceListResponse } from '@/types/admin.types';
-import { useDeleteService } from './useDeleteService';
-import { useServiceForm } from './useServiceForm';
+import { useDeleteService } from '@/hooks/useDeleteService';
+import { useServiceForm } from '@/hooks/useServiceForm';
 
 // ============ CONSTANTS ============
 type ServiceTableColumn = {

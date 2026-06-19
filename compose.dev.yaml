@@ -1,0 +1,45 @@
+services:
+  frontend:
+    image: simpeka-frontend:dev
+    build:
+      context: ./frontend
+      target: development
+    container_name: simpeka-frontend-dev
+    ports:
+      - '3000:3000'
+    volumes:
+      - './frontend:/app'
+      - '/app/node_modules'
+      - '/app/.next'
+    env_file:
+      - ./frontend/.env.development
+    environment:
+      - NODE_ENV=development
+    networks:
+      - simpeka-network
+    restart: unless-stopped
+
+  backend:
+    image: simpeka-backend:dev
+    build:
+      context: ./backend
+      target: development
+    container_name: simpeka-backend-dev
+    ports:
+      - '8080:8080'
+    volumes:
+      - './backend:/app'
+      - '/app/node_modules'
+      - '/app/dist'
+    env_file:
+      - ./backend/.env.development
+    environment:
+      - NODE_ENV=development
+    networks:
+      - simpeka-network
+    restart: unless-stopped
+
+
+networks:
+  simpeka-network:
+    driver: bridge

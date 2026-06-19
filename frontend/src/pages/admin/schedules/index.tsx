@@ -26,9 +26,9 @@ import usePagination from '@/hooks/usePagination';
 import { schedulesService, servicesService } from '@/services/admin.service';
 import { ScheduleItem } from '@/types/admin.types';
 import { formatDate } from '@/utils/common';
-import { useDeleteSchedule } from './useDeleteSchedule';
-import { useScheduleForm } from './useScheduleForm';
-import { useScheduleParticipants } from './useScheduleParticipants';
+import { useDeleteSchedule } from '@/hooks/useDeleteSchedule';
+import { useScheduleForm } from '@/hooks/useScheduleForm';
+import { useScheduleParticipants } from '@/hooks/useScheduleParticipants';
 
 // ============ ANIMATION VARIANTS ============
 const fadeInUp: Variants = {

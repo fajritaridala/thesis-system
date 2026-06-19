@@ -1,0 +1,28 @@
+services:
+  frontend:
+    image: fajritaridala/simpeka-frontend:1.0.0
+    build:
+      context: ./frontend
+      target: runner
+    container_name: simpeka-frontend-prod
+    ports:
+      - '3000:3000'
+    env_file:
+      - ./frontend/.env.production
+    environment:
+      - NODE_ENV=production
+    restart: always
+
+  backend:
+    image: fajritaridala/simpeka-backend:1.0.0
+    build:
+      context: ./backend
+      target: runner
+    container_name: simpeka-backend-prod
+    ports:
+      - '8080:8080'
+    env_file:
+      - ./backend/.env.production
+    environment:
+      - NODE_ENV=production
+    restart: always
