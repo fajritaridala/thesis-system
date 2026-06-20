@@ -1,7 +1,9 @@
-FROM node:24-alpine AS base
+FROM node:24-slim AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+
+EXPOSE 8080
 
 RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
 
@@ -23,7 +25,6 @@ COPY package.json ./
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 
-EXPOSE 8080
 
 CMD ["node", "dist/index.js"]
 
@@ -34,8 +35,6 @@ ENV NODE_ENV=development
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 COPY . .
-
-EXPOSE 8080
 
 CMD ["pnpm", "dev"]
 

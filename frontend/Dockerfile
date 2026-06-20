@@ -4,6 +4,8 @@ FROM node:24-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
+EXPOSE 3000
+
 RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
 
 WORKDIR /app
@@ -27,17 +29,15 @@ COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
 
-EXPOSE 3000
 
 CMD ["node", "server.js"]
 
 # development
 FROM base AS development
+ENV NODE_ENV=development
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 COPY . .
-
-EXPOSE 3000
 
 CMD ["pnpm", "dev"]

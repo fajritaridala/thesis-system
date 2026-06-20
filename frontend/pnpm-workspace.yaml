@@ -4,6 +4,8 @@ allowBuilds:
   bufferutil: true
   core-js: true
   esbuild: true
+  protobufjs: true
   sharp: true
+  tiny-secp256k1: true
   unrs-resolver: true
   utf-8-validate: true

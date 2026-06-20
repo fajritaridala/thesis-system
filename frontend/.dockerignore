@@ -1,8 +1,7 @@
 node_modules
 .next
 out
-.env*.local
-.env
+.env*
 .git
 .vscode
 README.md

@@ -18,7 +18,7 @@ import { useRouter } from 'next/router';
 import * as Yup from 'yup';
 import AuthLayout from '@/components/layouts/Auth';
 import { AuthCard } from '@/components/ui/Card/Auth';
-import metamask from '@/lib/metamask/metamask';
+import metamask from '@/lib/metamask/old/metamask';
 import authServices from '@/services/auth.service';
 import { IRegister } from '@/types/auth.types';
 import randomize from '@/utils/config/randomize';
