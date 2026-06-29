@@ -29,7 +29,6 @@ COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
 
-
 CMD ["node", "server.js"]
 
 # development
@@ -37,7 +36,5 @@ FROM base AS development
 ENV NODE_ENV=development
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-
-COPY . .
 
 CMD ["pnpm", "dev"]

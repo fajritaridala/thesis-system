@@ -7,7 +7,8 @@ import { useRouter } from 'next/router';
 import * as Yup from 'yup';
 import AuthLayout from '@/components/layouts/Auth';
 import { AuthCard } from '@/components/ui/Card/Auth';
-import metamask from '@/lib/metamask/old/metamask';
+import metamask from '@/lib/metamask/metamask';
+import authServices from '@/services/auth.service';
 import randomize from '@/utils/config/randomize';
 
 // ============ VALIDATION SCHEMA ============
@@ -28,6 +29,13 @@ const useLogin = () => {
   const callbackUrl = (router.query.callbackUrl as string) ?? '/';
 
   const loginService = async (address: string) => {
+    // 1. Periksa status registrasi terlebih dahulu menggunakan Axios langsung ke backend
+    const apiResult = await authServices.login(address);
+    if (apiResult.status === 200 && apiResult.data.needsRegistration) {
+      return { needsRegistration: true, address };
+    }
+
+    // 2. Jika sudah terdaftar, lakukan signIn NextAuth secara normal
     const result = await signIn('credentials', {
       address,
       redirect: false,
@@ -50,12 +58,20 @@ const useLogin = () => {
       );
     }
 
-    return result;
+    return { needsRegistration: false, address };
   };
 
   const { mutate: mutateLogin } = useMutation({
     mutationFn: loginService,
-    async onSuccess() {
+    async onSuccess(data) {
+      if (data.needsRegistration) {
+        const encryptedAddress = await randomize.encrypt(data.address);
+        await router.push(
+          `/auth/register?address=${encodeURIComponent(encryptedAddress)}`
+        );
+        return;
+      }
+
       async function waitForSession(maxTries = 5, delayMs = 200) {
         for (let attempt = 0; attempt < maxTries; attempt++) {
           const session = await getSession();
@@ -73,14 +89,6 @@ const useLogin = () => {
             role?: string;
           }
         | undefined;
-
-      if (user?.needsRegistration && user.address) {
-        const encryptedAddress = await randomize.encrypt(user.address);
-        await router.push(
-          `/auth/register?address=${encodeURIComponent(encryptedAddress)}`
-        );
-        return;
-      }
 
       switch (user?.role) {
         case 'admin':

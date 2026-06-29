@@ -7,3 +7,5 @@ export const CERTIFICATE_LINK: string =
   process.env.NEXT_PUBLIC_CERTIFICATE_LINK || '';
 export const RPC_URL: string = process.env.NEXT_PUBLIC_RPC_URL || '';
 export const IP_PROVIDER: string = process.env.NEXT_PUBLIC_IP_PROVIDER || '';
+export const WEB3AUTH_CLIENT_ID: string =
+  process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID || '';

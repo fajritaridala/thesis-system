@@ -18,7 +18,7 @@ import { useRouter } from 'next/router';
 import * as Yup from 'yup';
 import AuthLayout from '@/components/layouts/Auth';
 import { AuthCard } from '@/components/ui/Card/Auth';
-import metamask from '@/lib/metamask/old/metamask';
+import metamask from '@/lib/metamask/metamask';
 import authServices from '@/services/auth.service';
 import { IRegister } from '@/types/auth.types';
 import randomize from '@/utils/config/randomize';
@@ -267,7 +267,7 @@ export default function RegisterPage() {
               Kembali
             </Button>
             <Card className="border-border shadow-main w-full rounded-2xl border bg-white p-6 md:p-8">
-              <CardHeader className="flex-col items-start px-4 pt-2 pb-0">
+              <CardHeader className="flex-col items-start px-0 pt-2 pb-0">
                 <h1 className="text-text text-3xl font-bold tracking-tight">
                   Buat Akun
                 </h1>
@@ -284,71 +284,75 @@ export default function RegisterPage() {
                     name="username"
                     control={control}
                     render={({ field }) => (
-                      <Input
-                        {...field}
-                        isRequired
-                        label="Nama Pengguna"
-                        labelPlacement="outside"
-                        placeholder="Masukan nama pengguna Anda"
-                        type="text"
-                        variant="bordered"
-                        color={errors.username ? 'danger' : 'default'}
-                        validationBehavior="aria"
-                        classNames={{
-                          inputWrapper:
-                            'border-border shadow-none hover:border-primary/50 focus-within:!border-primary rounded-lg transition-colors',
-                          label: 'text-text-muted font-medium mb-1',
-                        }}
-                        isInvalid={!!errors.username}
-                        errorMessage={errors.username?.message}
-                      />
+                      <div className="flex flex-col gap-1.5 w-full">
+                        <label className="text-black font-semibold text-sm">
+                          Nama Pengguna <span className="text-danger">*</span>
+                        </label>
+                        <Input
+                          {...field}
+                          placeholder="Masukan nama pengguna Anda"
+                          type="text"
+                          variant="bordered"
+                          color={errors.username ? 'danger' : 'default'}
+                          validationBehavior="aria"
+                          classNames={{
+                            inputWrapper:
+                              'border border-gray-200 bg-gray-50 shadow-none hover:border-primary/50 focus-within:!border-primary rounded-lg transition-colors h-12',
+                          }}
+                          isInvalid={!!errors.username}
+                          errorMessage={errors.username?.message}
+                        />
+                      </div>
                     )}
                   />
                   <Controller
                     name="email"
                     control={control}
                     render={({ field }) => (
-                      <Input
-                        {...field}
-                        isRequired
-                        label="Email"
-                        labelPlacement="outside"
-                        placeholder="nama@contoh.com"
-                        type="email"
-                        variant="bordered"
-                        color={errors.email ? 'danger' : 'default'}
-                        validationBehavior="aria"
-                        classNames={{
-                          inputWrapper:
-                            'border-border shadow-none hover:border-primary/50 focus-within:!border-primary rounded-lg transition-colors',
-                          label: 'text-text-muted font-medium mb-1',
-                        }}
-                        isInvalid={!!errors.email}
-                        errorMessage={errors.email?.message}
-                      />
+                      <div className="flex flex-col gap-1.5 w-full">
+                        <label className="text-black font-semibold text-sm">
+                          Email <span className="text-danger">*</span>
+                        </label>
+                        <Input
+                          {...field}
+                          placeholder="nama@contoh.com"
+                          type="email"
+                          variant="bordered"
+                          color={errors.email ? 'danger' : 'default'}
+                          validationBehavior="aria"
+                          classNames={{
+                            inputWrapper:
+                              'border border-gray-200 bg-gray-50 shadow-none hover:border-primary/50 focus-within:!border-primary rounded-lg transition-colors h-12',
+                          }}
+                          isInvalid={!!errors.email}
+                          errorMessage={errors.email?.message}
+                        />
+                      </div>
                     )}
                   />
                   <Controller
                     name="roleToken"
                     control={control}
                     render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Token Peran"
-                        labelPlacement="outside"
-                        placeholder="Opsional"
-                        type="text"
-                        variant="bordered"
-                        color={errors.roleToken ? 'danger' : 'default'}
-                        validationBehavior="aria"
-                        classNames={{
-                          inputWrapper:
-                            'border-border shadow-none hover:border-primary/50 focus-within:!border-primary rounded-lg transition-colors',
-                          label: 'text-text-muted font-medium mb-1',
-                        }}
-                        isInvalid={!!errors.roleToken}
-                        errorMessage={errors.roleToken?.message}
-                      />
+                      <div className="flex flex-col gap-1.5 w-full">
+                        <label className="text-black font-semibold text-sm">
+                          Token Peran
+                        </label>
+                        <Input
+                          {...field}
+                          placeholder="Opsional"
+                          type="text"
+                          variant="bordered"
+                          color={errors.roleToken ? 'danger' : 'default'}
+                          validationBehavior="aria"
+                          classNames={{
+                            inputWrapper:
+                              'border border-gray-200 bg-gray-50 shadow-none hover:border-primary/50 focus-within:!border-primary rounded-lg transition-colors h-12',
+                          }}
+                          isInvalid={!!errors.roleToken}
+                          errorMessage={errors.roleToken?.message}
+                        />
+                      </div>
                     )}
                   />
 

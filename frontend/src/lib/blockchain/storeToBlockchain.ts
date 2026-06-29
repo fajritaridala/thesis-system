@@ -54,7 +54,7 @@ export async function storeToBlockchain({
     log('Contract Address:', CONTRACT_ADDRESS);
 
     // 2. Dynamic import MetaMask (only loaded when this function is called)
-    const { default: metamask } = await import('@/lib/metamask/old/metamask');
+    const { default: metamask } = await import('@/lib/metamask/metamask');
 
     // 3. Connect MetaMask and get signer
     const { signer } = await metamask.connectAndSign();
