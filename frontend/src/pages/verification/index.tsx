@@ -1,5 +1,5 @@
 import { ChangeEvent, useRef, useState } from 'react';
-import { Button } from '@heroui/react';
+import { Alert, Button } from '@heroui/react';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import BaseLayout from '@/components/layouts/Base';
@@ -14,6 +14,8 @@ const useVerification = () => {
   const [isPreview, setIsPreview] = useState<string>('');
   const [isQrMsg, setIsQrMsg] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [alertOpen, setAlertOpen] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState<string>('');
 
   if (!fileInputRef) {
     throw new Error('Gagal menginisialisasi input file');
@@ -21,12 +23,20 @@ const useVerification = () => {
 
   async function processFile(file: File) {
     setIsLoading(true);
+    setAlertOpen(false);
     try {
       const { qrMessage, previewUrl } = await readCertificatePdf(file);
+      if (!qrMessage) {
+        throw new Error('Sertifikat tidak memiliki kode QR verifikasi yang valid');
+      }
       setIsQrMsg(qrMessage);
       setIsPreview(previewUrl);
-    } catch {
-      throw new Error('Error processing file');
+    } catch (error) {
+      const err = error as Error;
+      setAlertMessage(err.message || 'Gagal memproses berkas sertifikat.');
+      setAlertOpen(true);
+      setIsPreview('');
+      setIsQrMsg('');
     } finally {
       setIsLoading(false);
     }
@@ -38,8 +48,10 @@ const useVerification = () => {
 
   async function handleFile(e: ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
-    if (!files) {
-      throw new Error('file tidak dapat dimuat');
+    if (!files || files.length === 0) {
+      setAlertMessage('Berkas tidak dapat dimuat.');
+      setAlertOpen(true);
+      return;
     }
     const file = files[0];
     await processFile(file);
@@ -64,6 +76,9 @@ const useVerification = () => {
 
   return {
     isPreview,
+    alertOpen,
+    setAlertOpen,
+    alertMessage,
     handleSubmit,
     handleClick,
     handleFile,
@@ -79,6 +94,9 @@ export default function VerificationPage() {
   const router = useRouter();
   const {
     isPreview,
+    alertOpen,
+    setAlertOpen,
+    alertMessage,
     handleClick,
     handleFile,
     handleSubmit,
@@ -91,6 +109,19 @@ export default function VerificationPage() {
   return (
     <BaseLayout title="Verifikasi Sertifikat">
       <section className="flex justify-center bg-white py-10">
+        {alertOpen && (
+          <div className="fixed top-6 left-1/2 z-50 w-full max-w-md -translate-x-1/2 px-4">
+            <Alert
+              color="danger"
+              title="Gagal Memproses Berkas"
+              description={alertMessage}
+              isClosable
+              onClose={() => setAlertOpen(false)}
+              variant="faded"
+              className="shadow-box border-danger-200 rounded-xl border bg-white/90 backdrop-blur-sm"
+            />
+          </div>
+        )}
         <div className="animate-fade-bottom my-10 flex w-full flex-col gap-6 px-6 lg:max-w-6xl lg:flex-row">
           {/* Header */}
           <div className="w-full space-y-2 lg:w-1/3">

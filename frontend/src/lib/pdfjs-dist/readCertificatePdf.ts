@@ -3,13 +3,12 @@ import getUrl from './geturl';
 export default async function readCertificatePdf(file: File) {
   try {
     // Dynamic import
-    const [{ getDocument, GlobalWorkerOptions }, jsqr] = await Promise.all([
+    const [{ getDocument, GlobalWorkerOptions, version }, jsqr] = await Promise.all([
       import('pdfjs-dist'),
       import('jsqr'),
     ]);
 
-    const pdfJsVersion = '5.4.296';
-    GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfJsVersion}/build/pdf.worker.min.mjs`;
+    GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${version}/build/pdf.worker.min.mjs`;
 
     // Koversi file ke arrayBuffer
     const arrayBuffer = await file.arrayBuffer();

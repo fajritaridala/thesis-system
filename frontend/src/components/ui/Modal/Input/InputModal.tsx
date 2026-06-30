@@ -56,7 +56,6 @@ export function InputModal({
   const {
     control,
     handleSubmit,
-    watch,
     reset,
     formState: { errors },
   } = useForm<ScoreFormValues>({
@@ -67,11 +66,6 @@ export function InputModal({
     },
   });
 
-  const listening = watch('listening');
-  const structure = watch('structure');
-  const reading = watch('reading');
-
-  const totalScore = Math.round(((listening + structure + reading) * 10) / 3);
 
   useEffect(() => {
     if (isOpen) {
@@ -131,7 +125,6 @@ export function InputModal({
                   !isIdle && !isError ? 'pointer-events-none opacity-50' : ''
                 }`}
               >
-                <div className="grid grid-cols-3 gap-4">
                   <Controller
                     name="listening"
                     control={control}
@@ -199,16 +192,6 @@ export function InputModal({
                       />
                     )}
                   />
-                </div>
-
-                <div className="mt-2 flex items-center justify-between rounded-lg bg-gray-50 p-4">
-                  <span className="font-semibold text-gray-700">
-                    Estimasi Skor Total (PBT):
-                  </span>
-                  <span className="text-primary text-2xl font-bold">
-                    {totalScore}
-                  </span>
-                </div>
               </div>
             </ModalBody>
             <ModalFooter>

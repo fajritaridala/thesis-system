@@ -1,4 +1,6 @@
 import { ethers } from 'ethers';
+import { switchChain } from '@wagmi/core';
+import { config } from '@/lib/wagmi/config';
 import ToeflRecordABI from '@/abi/ToeflRecord.json';
 import { CONTRACT_ADDRESS, RPC_URL } from '@/utils/config/env';
 
@@ -58,23 +60,33 @@ export async function storeToBlockchain({
 
     // 3. Connect MetaMask and get signer
     const { signer } = await metamask.connectAndSign();
+
+    // 4. Validasi & Paksa Switch ke Jaringan Sepolia (Chain ID: 11155111)
+    const network = await signer.provider.getNetwork();
+    if (network.chainId !== 11155111n) {
+      log('⚠️ Wallet not on Sepolia. Requesting switch...');
+      try {
+        await switchChain(config, { chainId: 11155111 });
+      } catch {
+        throw new Error('Harap alihkan jaringan MetaMask Anda ke Sepolia Testnet');
+      }
+    }
+
     const address = await signer.getAddress();
     log('Connected wallet:', address);
 
-    // 3. Create contract instance
+    // 5. Create contract instance
     const contract = new ethers.Contract(
       CONTRACT_ADDRESS,
       ToeflRecordABI.abi,
       signer
     );
 
-    // 4. Convert hash string to bytes32
-    // Backend should send hash as hex string (0x...)
+    // 6. Convert hash string to bytes32
     const hashBytes32 = hash.startsWith('0x') ? hash : `0x${hash}`;
     log('Hash (bytes32):', hashBytes32);
 
-    // 5. Call store function with timeout (2 minutes)
-    // Contract handles duplicate check internally with require statement
+    // 7. Call store function with timeout (2 minutes)
     log('📝 Calling contract.store()...');
     const tx = await withTimeout(
       contract.store(hashBytes32, cid),
@@ -83,17 +95,13 @@ export async function storeToBlockchain({
     );
     log('Transaction sent:', tx.hash);
 
-    // 6. Wait for confirmation
-    // Use 1 confirmation for dev (faster), 2 for production (more secure)
-    const confirmations = isDev ? 1 : 2;
+    // 8. Wait for confirmation (1 confirmation for Sepolia devnet is fast and safe enough)
+    const confirmations = 1;
     log(`⏳ Waiting for ${confirmations} confirmation(s)...`);
     const receipt = await tx.wait(confirmations);
     log('✅ Transaction confirmed!');
     log('Block number:', receipt.blockNumber);
     log('Transaction hash:', receipt.hash);
-
-    // Transaction confirmed = data stored successfully
-    // No need to verify with getRecord - tx.wait already guarantees this
 
     return {
       transactionHash: receipt.hash,
@@ -119,7 +127,7 @@ export async function storeToBlockchain({
     } else if (err.message.includes('Contract address')) {
       throw new Error('Konfigurasi contract address tidak valid');
     } else if (err.message.includes('timeout')) {
-      throw new Error(err.message); // Pass through timeout message
+      throw new Error(err.message);
     } else {
       throw new Error(`Blockchain error: ${err.message}`);
     }
@@ -137,12 +145,35 @@ export async function getRecordFromBlockchain(hash: string): Promise<string> {
       throw new Error('Contract address not configured');
     }
 
-    // Use JsonRpcProvider for read-only access (no MetaMask needed)
-    if (!RPC_URL) {
-      throw new Error('RPC_URL tidak ditemukan');
+    // Daftar RPC Sepolia cadangan apabila RPC utama bermasalah
+    const rpcs = [
+      RPC_URL,
+      'https://ethereum-sepolia-rpc.publicnode.com',
+      'https://rpc.ankr.com/eth_sepolia',
+      'https://sepolia.gateway.tenderly.co',
+    ].filter(Boolean);
+
+    let provider: ethers.JsonRpcProvider | null = null;
+    let lastError: Error | null = null;
+
+    for (const url of rpcs) {
+      try {
+        log(`Trying RPC: ${url}`);
+        const tempProvider = new ethers.JsonRpcProvider(url);
+        // Test koneksi ringan
+        await tempProvider.getBlockNumber();
+        provider = tempProvider;
+        break; // Berhasil terhubung, keluar loop
+      } catch (err) {
+        lastError = err as Error;
+        log(`RPC ${url} failed:`, lastError.message);
+      }
     }
 
-    const provider = new ethers.JsonRpcProvider(RPC_URL);
+    if (!provider) {
+      throw new Error(`Gagal terhubung ke semua provider RPC Sepolia. Error terakhir: ${lastError?.message}`);
+    }
+
     const contract = new ethers.Contract(
       CONTRACT_ADDRESS,
       ToeflRecordABI.abi,
@@ -158,6 +189,6 @@ export async function getRecordFromBlockchain(hash: string): Promise<string> {
     return cid;
   } catch (error) {
     const err = error as Error;
-    throw new Error(`Failed to get record: ${err.message}`);
+    throw new Error(`Gagal memuat sertifikat dari blockchain: ${err.message}`);
   }
 }

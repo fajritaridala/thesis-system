@@ -102,6 +102,9 @@ importers:
       '@eslint/eslintrc':
         specifier: ^3.3.5
         version: 3.3.5
+      '@heroui/theme':
+        specifier: ^2.4.26
+        version: 2.4.26(tailwindcss@4.3.1)
       '@tailwindcss/postcss':
         specifier: ^4.3.1
         version: 4.3.1

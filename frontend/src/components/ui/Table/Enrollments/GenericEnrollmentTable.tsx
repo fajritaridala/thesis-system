@@ -128,24 +128,26 @@ export function GenericEnrollmentTable({
   return (
     <div className="rounded-2xl border border-gray-100 bg-white shadow-md shadow-gray-100/50">
       {/* Header: Filters & Search */}
-      <div className="flex flex-col items-center justify-between gap-4 rounded-t-xl border-b border-gray-50 bg-transparent px-6 py-4 sm:flex-row">
-        <Input
-          isClearable
-          type="search"
-          radius="full"
-          placeholder={search.placeholder || 'Cari nama atau NIM peserta...'}
-          startContent={<Search className="h-4 w-4 text-gray-400" />}
-          value={searchInput}
-          onClear={handleClearSearch}
-          onValueChange={setSearchInput}
-          classNames={{
-            base: 'w-full sm:max-w-md',
-            inputWrapper: 'h-9 bg-gray-50 border border-gray-200 shadow-sm',
-            input: 'text-sm',
-          }}
-        />
+      <div className="flex flex-row items-center justify-between gap-4 rounded-t-xl border-b border-gray-50 bg-transparent px-6 py-4 flex-nowrap w-full">
+        <div className="flex-1 min-w-[120px] max-w-md">
+          <Input
+            isClearable
+            type="search"
+            radius="full"
+            placeholder={search.placeholder || 'Cari nama atau NIM peserta...'}
+            startContent={<Search className="h-4 w-4 text-gray-400" />}
+            value={searchInput}
+            onClear={handleClearSearch}
+            onValueChange={setSearchInput}
+            classNames={{
+              base: 'w-full',
+              inputWrapper: 'h-9 bg-gray-50 border border-gray-200 shadow-sm',
+              input: 'text-sm',
+            }}
+          />
+        </div>
 
-        <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto">
+        <div className="flex flex-shrink-0 items-center justify-end gap-2 flex-nowrap">
           {filterContent}
         </div>
       </div>

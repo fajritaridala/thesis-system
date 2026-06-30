@@ -322,6 +322,7 @@ export default function AdminSchedules() {
               />
               <Refresh isRefetching={isRefetching} onRefresh={handleRefresh} />
               <Button
+                radius="full"
                 color="primary"
                 endContent={<Plus size={16} />}
                 onPress={handleOpenAdd}

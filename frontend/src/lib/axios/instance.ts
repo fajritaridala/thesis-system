@@ -30,8 +30,12 @@ instance.interceptors.response.use(
   (response) => response,
   (error) => {
     const response = error.response;
-    const { message } = response.data;
-    error.message = message;
+    if (response && response.data) {
+      const { message } = response.data;
+      error.message = message;
+    } else {
+      error.message = 'Gagal terhubung ke server. Pastikan backend Anda sudah aktif dan dapat diakses.';
+    }
     return Promise.reject(error);
   }
 );

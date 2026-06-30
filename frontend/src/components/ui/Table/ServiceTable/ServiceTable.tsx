@@ -136,9 +136,9 @@ export function ServiceTable(props: Props) {
       <div className="rounded-2xl border border-gray-100 bg-white shadow-md shadow-gray-100/50">
         {/* Filters Section */}
         <div className="bg-transparent px-6 py-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-row items-center justify-between gap-4 flex-nowrap">
             {/* Search Input */}
-            <div className="flex flex-1 gap-2">
+            <div className="flex flex-1 items-center gap-2 min-w-0">
               <Input
                 isClearable
                 radius="full"
@@ -148,7 +148,7 @@ export function ServiceTable(props: Props) {
                 onClear={onClearSearch}
                 startContent={<Search className="h-4 w-4 text-gray-400" />}
                 classNames={{
-                  base: 'max-w-md',
+                  base: 'w-full max-w-md min-w-[120px]',
                   inputWrapper: 'bg-gray-50 drop-shadow-sm',
                 }}
               />
@@ -159,7 +159,7 @@ export function ServiceTable(props: Props) {
             </div>
 
             {/* Added Service & Refresh */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-shrink-0 items-center gap-2">
               <Button
                 radius="full"
                 className="bg-primary font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5"
